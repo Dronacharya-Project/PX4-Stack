@@ -1,0 +1,89 @@
+#!/bin/sh
+#
+# @name Gazebo My Hexacopter
+#
+# @type Hexarotor
+#
+
+. ${R}etc/init.d/rc.mc_defaults
+
+# --- GAZEBO MODEL SETUP ---
+PX4_SIMULATOR=${PX4_SIMULATOR:=gz}
+PX4_GZ_WORLD=${PX4_GZ_WORLD:=default}
+PX4_SIM_MODEL=${PX4_SIM_MODEL:=my_hexacopter} # **UPDATED to match your SDF model name**
+
+param set-default SIM_GZ_EN 1
+
+# --- CONTROL ALLOCATION (CA) PARAMETERS ---
+# Set rotor count to 6
+param set-default CA_AIRFRAME 0
+param set-default CA_ROTOR_COUNT 6
+
+# M0: Rotor 1 (CCW) @ FRD: (0.58964, -0.00033, 0.13625)
+param set-default CA_ROTOR0_PX 0.58964
+param set-default CA_ROTOR0_PY -0.00033
+param set-default CA_ROTOR0_PZ 0.13625
+param set-default CA_ROTOR0_KM 0.05       # Positive KM for CCW (matches DIR 1)
+
+# M1: Rotor 2 (CW) @ FRD: (-0.65761, -0.00033, 0.13054)
+param set-default CA_ROTOR1_PX -0.65761
+param set-default CA_ROTOR1_PY -0.00033
+param set-default CA_ROTOR1_PZ 0.13054
+param set-default CA_ROTOR1_KM -0.05      # Negative KM for CW (matches DIR -1)
+
+# M2: Rotor 3 (CCW) @ FRD: (-0.3458, 0.53975, 0.13625)
+param set-default CA_ROTOR2_PX -0.3458
+param set-default CA_ROTOR2_PY 0.53975
+param set-default CA_ROTOR2_PZ 0.13625
+param set-default CA_ROTOR2_KM 0.05
+
+# M3: Rotor 4 (CW) @ FRD: (0.27782, -0.54041, 0.13054)
+param set-default CA_ROTOR3_PX 0.27782
+param set-default CA_ROTOR3_PY -0.54041
+param set-default CA_ROTOR3_PZ 0.13054
+param set-default CA_ROTOR3_KM -0.05
+
+# M4: Rotor 5 (CW) @ FRD: (0.27782, 0.53975, 0.13054)
+param set-default CA_ROTOR4_PX 0.27782
+param set-default CA_ROTOR4_PY 0.53975
+param set-default CA_ROTOR4_PZ 0.13054
+param set-default CA_ROTOR4_KM -0.05
+
+# M5: Rotor 6 (CCW) @ FRD: (-0.3458, -0.54041, 0.13625)
+param set-default CA_ROTOR5_PX -0.3458
+param set-default CA_ROTOR5_PY -0.54041
+param set-default CA_ROTOR5_PZ 0.13625
+param set-default CA_ROTOR5_KM 0.05
+
+# The following SIM_GZ_EC_FUNC parameters must be extended to 6
+param set-default SIM_GZ_EC_FUNC1 101 # Motor 1
+param set-default SIM_GZ_EC_FUNC2 102 # Motor 2
+param set-default SIM_GZ_EC_FUNC3 103 # Motor 3
+param set-default SIM_GZ_EC_FUNC4 104 # Motor 4
+param set-default SIM_GZ_EC_FUNC5 105 # Motor 5 (NEW)
+param set-default SIM_GZ_EC_FUNC6 106 # Motor 6 (NEW)
+
+# Extend min and max thrust limits to 6 rotors
+param set-default SIM_GZ_EC_MIN1 150
+param set-default SIM_GZ_EC_MIN2 150
+param set-default SIM_GZ_EC_MIN3 150
+param set-default SIM_GZ_EC_MIN4 150
+param set-default SIM_GZ_EC_MIN5 150 # (NEW)
+param set-default SIM_GZ_EC_MIN6 150 # (NEW)
+
+param set-default SIM_GZ_EC_MAX1 1000
+param set-default SIM_GZ_EC_MAX2 1000
+param set-default SIM_GZ_EC_MAX3 1000
+param set-default SIM_GZ_EC_MAX4 1000
+param set-default SIM_GZ_EC_MAX5 1000 # (NEW)
+param set-default SIM_GZ_EC_MAX6 1000 # (NEW)
+
+
+# --- GENERAL PERFORMANCE PARAMETERS ---
+# Use the mass of your drone (7.2882 kg) to adjust the hover thrust for better default performance
+# Hover thrust is usually (Mass * Gravity / Rotor Count) / Max_Thrust
+# (7.2882 * 9.81 / 6) / Max_Thrust. Since max thrust in simulation is 1, this is approx: 11.95 / 1000 = 0.01195
+# Use a higher value for initial testing (0.6 is inherited default, but use mass for better tuning)
+param set-default MPC_THR_HOVER 0.12  # Adjusted based on your mass (7.2882/10 approx)
+param set-default NAV_DLL_ACT 2
+param set-default SENS_BOARD_ROT 5
